@@ -269,6 +269,7 @@ This example shows how you could construct a query using the `get_GSOD()` functi
 ```{r get_data, echo=TRUE, eval=TRUE}
 PHL <- get_GSOD(station = 
                   eval(parse(text = loop_stations[, 12])), years = 1960:2015)
+save(PHL, file = "IRRI_loop.RData")
 ```
 
 ## Another Option, Using `reformat_GSOD()`
@@ -298,3 +299,19 @@ readr::write_csv(loop_data, file = "~/Loop_Survey_Weather_1960-2015")
 ```
 
 ## Examining the Data
+```{r PHL_data}
+PHL <- load(file = "IRRI_loop.Rdata")
+
+library(dplyr)
+PHL <-
+  PHL %>%
+  group_by(STN_NAME, YEAR) %>%
+  summarise(ANNUAL_TEMP = mean(TEMP))
+
+ggplot(data = PHL, aes(x = YEAR, y = ANNUAL_TEMP, group = 1)) +
+  geom_line(aes(colour = STN_NAME)) +
+  geom_point(aes(colour = STN_NAME)) +
+  scale_colour_discrete(name  = "Station Name") +
+  ylab("Mean Annual Temperature (˚C)") +
+  facet_grid(STN_NAME ~ .)
+```
