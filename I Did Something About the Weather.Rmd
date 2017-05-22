@@ -69,10 +69,13 @@ ggplot(GSOD_stations, aes(x = LON, y = LAT)) +
 A raw data file
 
 ```{r illustrate_GSOD_DL, echo=FALSE, message=FALSE}
-download.file("ftp://ftp.ncdc.noaa.gov/pub/data/gsod/2017/983280-99999-2017.op.gz", 
-              paste0(tempdir(), "/983280-99999-2017.op.gz"))
-Baguio <- list.files(tempdir(), pattern = ".op.gz$", full.names = TRUE)
-(readr::read_table(Baguio))
+download.file(
+  "ftp://ftp.ncdc.noaa.gov/pub/data/gsod/2017/983280-99999-2017.op.gz",
+  paste0(tempdir(), "/983280-99999-2017.op.gz")
+  )
+  Baguio <-
+  list.files(tempdir(), pattern = ".op.gz$", full.names = TRUE)
+  (readr::read_table(Baguio))
 ```
 
 ## The Same Data File
@@ -88,6 +91,11 @@ head(Baguio <- reformat_GSOD(dsn = tempdir()))
 head(Baguio, 2)
 rm(Baguio)
 ```
+
+## The GSODR Package
+ ![](rOpenSci.png)
+
+Adam H Sparks, Tomislav Hengl and Andrew Nelson (2017). GSODR: Global Summary Daily Weather Data in R. The Journal of Open Source Software, 2(10). DOI: 10.21105/joss.00177. URL: https://doi.org/10.21105%2Fjoss.00177
 
 ## Functions in GSODR
 
@@ -107,12 +115,12 @@ library(raster)
 RP0 <- getData(country = "Philippines", level = 0)
 RP1 <- getData(country = "Philippines", level = 1)
 
-Central_Luzon <- RP1[RP1@data$NAME_1 == "Pampanga" | 
-                     RP1@data$NAME_1 == "Tarlac" |
-                     RP1@data$NAME_1 == "Pangasinan" |
-                     RP1@data$NAME_1 == "La Union" |
-                     RP1@data$NAME_1 == "Nueva Ecija" |
-                     RP1@data$NAME_1 == "Bulacan", ]
+Central_Luzon <- RP1[RP1@data$NAME_1 == "Pampanga" |
+RP1@data$NAME_1 == "Tarlac" |
+RP1@data$NAME_1 == "Pangasinan" |
+RP1@data$NAME_1 == "La Union" |
+RP1@data$NAME_1 == "Nueva Ecija" |
+RP1@data$NAME_1 == "Bulacan",]
 
 #`gSimplify()` from _rgeos_ simplifies the data to make the map generation in the next few steps quicker.
 library(rgeos)
@@ -123,44 +131,76 @@ library(ggplot2)
 library(grid)
 library(gridExtra)
 
- # get center coordinates of provinces in Central Luzon
+# get center coordinates of provinces in Central Luzon
 CL_names <- data.frame(coordinates(Central_Luzon))
 
 # add them to the data slot
 CL_names$label <- Central_Luzon@data$NAME_1
 
 # Main Map
-p1 <- ggplot() + 
-  geom_polygon(data = Central_Luzon, aes(x = long, y = lat, group = group),
-               colour = "grey10", fill = "#fff7bc") +
-  geom_text(data = CL_names, aes(x = X1, y = X2, label = label), size = 2,
-            colour = "grey20") +
-  theme(axis.text.y = element_text(angle = 90, hjust = 0.5)) +
-  ggtitle("Central Luzon Provinces Surveyed") +
-  coord_map() +
-  theme_bw() + 
-  xlab("Longitude") + 
-  ylab("Latitude")
+p1 <- ggplot() +
+geom_polygon(
+data = Central_Luzon,
+aes(x = long, y = lat, group = group),
+colour = "grey10",
+fill = "#fff7bc"
+) +
+geom_text(
+data = CL_names,
+aes(x = X1, y = X2, label = label),
+size = 2,
+colour = "grey20"
+) +
+theme(axis.text.y = element_text(angle = 90, hjust = 0.5)) +
+ggtitle("Central Luzon Provinces Surveyed") +
+coord_map() +
+theme_bw() +
+xlab("Longitude") +
+ylab("Latitude")
 
 # Inset
 p2 <- ggplot() + 
   geom_polygon(data = RP0, aes(long, lat, group = group),
                colour = "grey10", fill = "#fff7bc") +
   coord_map() +
-  theme_bw() + 
+  theme_bw() +
   labs(x = NULL, y = NULL) +
-  geom_rect(aes(xmin = extent(Central_Luzon)[1], xmax = extent(Central_Luzon)[2],
-                ymin = extent(Central_Luzon)[3], ymax = extent(Central_Luzon)[4]),
-            alpha = 0, colour = "red", size = 0.7, linetype = 1) +
-  theme(axis.text.x = element_blank(), axis.text.y = element_blank(),
-        axis.ticks = element_blank(), axis.title.x = element_blank(),
-        axis.title.y = element_blank(),
-        plot.margin = unit(c(0, 0, 0 ,0), "mm"))
-
-# Put the Maps Together
-grid.newpage()
-v1 <- viewport(width = 1, height = 1, x = 0.5, y = 0.5) # main map
-v2 <- viewport(width = 0.28, height = 0.28, x = 0.64, y = 0.76) # inset map
+  geom_rect(
+  aes(
+  xmin = extent(Central_Luzon)[1],
+  xmax = extent(Central_Luzon)[2],
+  ymin = extent(Central_Luzon)[3],
+  ymax = extent(Central_Luzon)[4]
+  ),
+  alpha = 0,
+  colour = "red",
+  size = 0.7,
+  linetype = 1
+  ) +
+  theme(
+  axis.text.x = element_blank(),
+  axis.text.y = element_blank(),
+  axis.ticks = element_blank(),
+  axis.title.x = element_blank(),
+  axis.title.y = element_blank(),
+  plot.margin = unit(c(0, 0, 0 , 0), "mm")
+  )
+  
+  # Put the Maps Together
+  grid.newpage()
+  v1 <- viewport(
+  width = 1,
+  height = 1,
+  x = 0.5,
+  y = 0.5
+  ) # main map
+  v2 <-
+  viewport(
+  width = 0.28,
+  height = 0.28,
+  x = 0.64,
+  y = 0.76
+  ) # inset map
 
 # final map
 print(p1, vp = v1);
@@ -172,25 +212,30 @@ print(p2, vp = v2)
 Central_Luzon <- gUnaryUnion(Central_Luzon)
 centroid <- gCentroid(Central_Luzon)
 
-ggplot() + 
-  geom_polygon(data = Central_Luzon, aes(x = long, y = lat, group = group),
-               colour = "grey10", fill = "#fff7bc") +
+ggplot() +
+  geom_polygon(
+  data = Central_Luzon,
+  aes(x = long, y = lat, group = group),
+  colour = "grey10",
+  fill = "#fff7bc"
+  ) +
   geom_point(aes(x = centroid@coords[1], y = centroid@coords[2])) +
   theme(axis.text.y = element_text(angle = 90, hjust = 0.5)) +
-  ggtitle("Centre of Survey\nArea") + theme_bw() + 
+  ggtitle("Centre of Survey Area") + theme_bw() +
   xlab("Longitude") + ylab("Latitude") + coord_map()
 ```
 
 ## Create List of Loop Stations
 ```{r get_station_data, echo=TRUE}
-loop_stations <- nearest_stations(LAT = centroid@coords[2], 
-                                  LON = centroid@coords[1], 
+loop_stations <- nearest_stations(LAT = centroid@coords[2],
+                                  LON = centroid@coords[1],
                                   distance = 100)
-
-loop_stations <- GSOD_stations[GSOD_stations$STNID %in% loop_stations, ]
-
-loop_stations <- loop_stations[loop_stations$BEGIN <= 19591231 &
-                               loop_stations$END >= 20151231, ]
+                                  
+                                  loop_stations <-
+                                  GSOD_stations[GSOD_stations$STNID %in% loop_stations,]
+                                  
+                                  loop_stations <- loop_stations[loop_stations$BEGIN <= 19591231 &
+                                  loop_stations$END >= 20151231,]
 ```
 
 ## Loop Stations
@@ -200,7 +245,7 @@ print(loop_stations[, c(1:2, 3, 7:12)])
 
 ## Using `get_GSOD()` to Fetch the Requested Station Files
 ```{r get_data, echo=TRUE, eval=FALSE}
-PHL <- get_GSOD(station = 
+PHL <- get_GSOD(station =
                   eval(parse(text = loop_stations[, 12])), years = 1960:2015)
 ```
 
@@ -215,11 +260,12 @@ years <- 1960:2015
 loop_stations <- eval(parse(text = loop_stations[, 12]))
 
 # create file list
-loop_stations <- do.call(
-  paste0, c(expand.grid(loop_stations, "-", years, ".op.gz"))
-  )
+loop_stations <- do.call(paste0, c(expand.grid(loop_stations, "-", years, ".op.gz")))
 
-local_files <- list.files(path = "./GSOD", full.names = TRUE, recursive = TRUE)
+local_files <-
+list.files(path = "./GSOD",
+full.names = TRUE,
+recursive = TRUE)
 local_files <- local_files[basename(local_files) %in% loop_stations]
 
 loop_data <- reformat_GSOD(file_list = local_files)
@@ -230,7 +276,7 @@ readr::write_csv(loop_data, file = "~/Loop_Survey_Weather_1960-2015")
 ## Examining the Data
 Install `visdat`, `devtools::install_github("njtierney/visdat")`
 ```{r, echo=FALSE, eval=TRUE}
-load(file = "IRRI_loop.Rdata") #saves time loading vs downloading in previous step
+load(file = "IRRI_loop.Rdata") # saves time loading vs downloading in previous step
 library(visdat)
 ```
 
@@ -242,20 +288,77 @@ vis_dat(PHL)
 ```{r plot_PHL_data, echo=FALSE, eval=TRUE, message=FALSE}
 library(dplyr)
 
-PHL <-
+PHL_tmp <-
   PHL %>%
   group_by(STN_NAME, YEAR) %>%
   summarise(ANNUAL_TEMP = mean(TEMP))
 
-ggplot(data = PHL, aes(x = YEAR, y = ANNUAL_TEMP, group = 1)) +
+ggplot(data = PHL_tmp, aes(x = YEAR, y = ANNUAL_TEMP, group = 1)) +
   geom_point(aes(colour = STN_NAME)) +
   scale_colour_discrete(name  = "Station Name") +
   scale_x_discrete(breaks = seq(1960, 2020, 10)) +
   scale_y_continuous(breaks = seq(20, 30, 3)) +
   ylab("Mean Annual Temperature (˚C)") +
   facet_grid(STN_NAME ~ .) +
-  theme(strip.text.y = element_text(angle = 0),
-        legend.position = "none",
-        axis.text.x = element_text(angle = 90, hjust = 1))
+  theme(
+  strip.text.y = element_text(angle = 0),
+  legend.position = "none",
+  axis.text.x = element_text(angle = 90, hjust = 1)
+  )
 ```
 
+## Map the Station Locations
+```{r map_density, eval=TRUE, echo=FALSE}
+ggplot() +
+  geom_polygon(
+  data = Central_Luzon,
+  aes(x = long, y = lat, group = group),
+  colour = "grey10",
+  fill = "#fff7bc"
+  ) +
+  geom_point(data = PHL, aes(x = LON, y = LAT)) +
+  geom_point(aes(x = centroid@coords[1], y = centroid@coords[2]),
+  colour = "red",
+  size = 5) +
+  coord_map()
+```
+
+## Summary
+
+- Simplifies the usage of GSOD data
+
+- rOpenSci reviews are useful
+
+- Building your own R package is easy
+
+- Building a _quality_ R package is hard
+
+## Building Your Own R Package
+
+- Wickham, H. R Packages (2015). (http://r-pkgs.had.co.nz)
+
+- Writing R Extensions (https://cran.r-project.org/doc/manuals/r-release/R-exts.html)
+
+- RStudio (https://www.rstudio.com)
+
+- _devtools_ (https://cran.r-project.org/package=devtools)
+
+- _testthat_ (https://cran.r-project.org/package=testthat)
+
+- _covr_ (https://cran.r-project.org/package=covr)
+
+- _goodpractice_ (https://github.com/MangoTheCat/goodpractice)
+
+- travis (https://travis-ci.org)
+
+- appveyor (https://www.appveyor.com)
+
+## Contact Information {.columns-2}
+
+- **Web:** https://adamhsparks.github.io/
+
+- **E-mail:** adamhsparks@gmail.com
+
+- **ORCID:** [http://orcid.org/0000-0002-0061-8359](0000-0002-0061-8359)
+
+- **This Presentation:** https://github.com/adamhsparks/ManilaRUG2017
