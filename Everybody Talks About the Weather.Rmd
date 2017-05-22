@@ -1,5 +1,5 @@
 ---
-title: "I Did Something About the Weather"
+title: "Everybody Talks About the Weather"
 author: "Adam H Sparks"
 date: "24/05/2017"
 output: 
@@ -37,15 +37,13 @@ options(tibble.print_max = 4, tibble.print_min = 4)
 
 **Previously:** Plant Disease Management Specialist @ IRRI, Los Baños, PHL
 
-### R packages (on CRAN)
+### Weather Related R packages
 
-GSODR (Sparks, Hengl and Nelson)  
+- GSODR (Sparks, Hengl and Nelson)  
 
-getCRUCLdata (Sparks)
+- getCRUCLdata (Sparks)
 
-### R packages (not yet on CRAN)
-
-bomrang (Sparks, Parsonage and Pembleton)
+- bomrang (Sparks, Parsonage and Pembleton; not yet on CRAN)
 
 ## GSOD Data
 
@@ -327,7 +325,7 @@ ggplot() +
 
 - Simplifies the usage of GSOD data
 
-- rOpenSci reviews are useful
+- [rOpenSci reviews](https://github.com/ropensci/onboarding) are extremely useful
 
 - Building your own R package is easy
 

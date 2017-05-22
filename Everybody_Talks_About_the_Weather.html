@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>I Did Something About the Weather</title>
+  <title>Everybody Talks About the Weather</title>
 
   <meta charset="utf-8">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -20,7 +20,7 @@
     var SLIDE_CONFIG = {
       // Slide settings
       settings: {
-                title: 'I Did Something About the Weather',
+                title: 'Everybody Talks About the Weather',
                         useBuilds: true,
         usePrettify: true,
         enableSlideAreas: true,
@@ -121,15 +121,13 @@ pre {
 
 <p><strong>Previously:</strong> Plant Disease Management Specialist @ IRRI, Los Baños, PHL</p>
 
-<h3>R packages (on CRAN)</h3>
+<h3>Weather Related R packages</h3>
 
-<p>GSODR (Sparks, Hengl and Nelson)</p>
-
-<p>getCRUCLdata (Sparks)</p>
-
-<h3>R packages (not yet on CRAN)</h3>
-
-<p>bomrang (Sparks, Parsonage and Pembleton)</p>
+<ul class = 'build'>
+<li><p>GSODR (Sparks, Hengl and Nelson)</p></li>
+<li><p>getCRUCLdata (Sparks)</p></li>
+<li><p>bomrang (Sparks, Parsonage and Pembleton; not yet on CRAN)</p></li>
+</ul>
 
 </article></slide><slide class=''><hgroup><h2>GSOD Data</h2></hgroup><article  id="gsod-data">
 
@@ -163,8 +161,8 @@ pre {
 ## 1: 983280 99999 983280-99999   BAGUIO   RP    NA RPUB 16.375 120.62 1295.7
 ## 2: 983280 99999 983280-99999   BAGUIO   RP    NA RPUB 16.375 120.62 1295.7
 ##    ELEV_M_SRTM_90m    BEGIN      END YEARMODA YEAR MONTH DAY YDAY TEMP
-## 1:              NA 19490101 20170519 20170101 2017    01  01    1 17.7
-## 2:              NA 19490101 20170519 20170102 2017    01  02    2 19.1
+## 1:              NA 19490101 20170520 20170101 2017    01  01    1 17.7
+## 2:              NA 19490101 20170520 20170102 2017    01  02    2 19.1
 ##    TEMP_CNT DEWP DEWP_CNT    SLP SLP_CNT   STP STP_CNT VISIB VISIB_CNT
 ## 1:        8 14.9        8 1011.0       8 852.8       8   9.5         8
 ## 2:        7 14.2        7 1009.7       7 852.1       7   9.7         7
@@ -232,15 +230,15 @@ pre {
 ## 25537 984320 99999          AMBULONG 14.083 121.050   11.0 19490205
 ## 25538 984330 99999             TANAY 14.583 121.367  651.0 19490101
 ##            END        STNID
-## 25515 20170519 983240-99999
-## 25516 20170519 983250-99999
-## 25518 20170519 983270-99999
-## 25520 20170519 983280-99999
-## 25528 20170519 984260-41231
-## 25533 20170519 984290-99999
-## 25535 20170519 984300-99999
-## 25537 20170519 984320-99999
-## 25538 20170519 984330-99999</pre>
+## 25515 20170520 983240-99999
+## 25516 20170520 983250-99999
+## 25518 20170520 983270-99999
+## 25520 20170520 983280-99999
+## 25528 20170520 984260-41231
+## 25533 20170520 984290-99999
+## 25535 20170520 984300-99999
+## 25537 20170520 984320-99999
+## 25538 20170520 984330-99999</pre>
 
 </article></slide><slide class=''><hgroup><h2>Using <code>get_GSOD()</code> to Fetch the Requested Station Files</h2></hgroup><article  id="using-get_gsod-to-fetch-the-requested-station-files">
 
@@ -286,7 +284,7 @@ readr::write_csv(loop_data, file = &quot;~/Loop_Survey_Weather_1960-2015&quot;)<
 
 <ul class = 'build'>
 <li><p>Simplifies the usage of GSOD data</p></li>
-<li><p>rOpenSci reviews are useful</p></li>
+<li><p><a href='https://github.com/ropensci/onboarding' title=''>rOpenSci reviews</a> are extremely useful</p></li>
 <li><p>Building your own R package is easy</p></li>
 <li><p>Building a <em>quality</em> R package is hard</p></li>
 </ul>
