@@ -28,6 +28,7 @@ pre {
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
+options(tibble.print_max = 4, tibble.print_min = 4)
 ```
 
 ## About Me
@@ -50,7 +51,7 @@ bomrang (Sparks, Parsonage and Pembleton)
 
 The GSOD or [Global Surface Summary of the Day (GSOD)](https://data.noaa.gov/dataset/global-surface-summary-of-the-day-gsod) station locations. US National Centers for Environmental Information, 1901-Present.
 
-```{r, echo=FALSE, message=FALSE}
+```{r station_locations, echo=FALSE, message=FALSE}
 #devtools::install_github("adamhsparks/GSODR", ref = "devel")
 library(ggplot2)
 library(GSODR)
@@ -68,31 +69,26 @@ ggplot(GSOD_stations, aes(x = LON, y = LAT)) +
 
 A raw data file
 
-```{r, echo=FALSE, message=FALSE}
-download.file("ftp://ftp.ncdc.noaa.gov/pub/data/gsod/2017/955510-99999-2017.op.gz", 
-              paste0(tempdir(), "/955510-99999-2017.op.gz"))
-tbar <- list.files(tempdir(), pattern = ".op.gz$", full.names = TRUE)
-(readr::read_table(tbar))
+```{r illustrate_GSOD_DL, echo=FALSE, message=FALSE}
+download.file("ftp://ftp.ncdc.noaa.gov/pub/data/gsod/2017/983280-99999-2017.op.gz", 
+              paste0(tempdir(), "/983280-99999-2017.op.gz"))
+Baguio <- list.files(tempdir(), pattern = ".op.gz$", full.names = TRUE)
+(readr::read_table(Baguio))
 ```
 
 ## The same data file
 
-Retreived and parsed with GSODR
+Retrieved and parsed with GSODR
 
-```{r, echo=FALSE, message=FALSE, quiet=TRUE, results="hide"}
+```{r reformat_GSOD, echo=FALSE, message=FALSE, quiet=TRUE, results="hide"}
 # use this to create the dataframe (but shows progress bar)
-tbar <- GSODR::reformat_GSOD(dsn = tempdir())
+head(Baguio <- GSODR::reformat_GSOD(dsn = tempdir()))
 ```
 
-```{r, echo=FALSE}
+```{r show_Baguio, echo=FALSE}
 # use this to display the dataframe (no progress bar)
-tbar
-```
-
-## data file continued...
-```{r, echo=FALSE}
-# use this to display the dataframe (no progress bar)
-tbar[, 19:36]
+head(Baguio, 2)
+rm(Baguio)
 ```
 
 ## Functions in GSODR
@@ -124,37 +120,28 @@ Weather data?
   
   * downloading the station files and creating a single CSV file of the data for analysis.  
 
-## Retrieve PHL Provincial Data
+## The Area of Interest
 
-```{r, echo=TRUE}
+```{r create_map_of_CL, echo=FALSE, message=FALSE, eval=TRUE}
 library(raster)
 RP0 <- getData(country = "Philippines", level = 0)
 RP1 <- getData(country = "Philippines", level = 1)
-```
 
-## Select Provinces in Loop Survey
-
-```{r, echo=TRUE}
 Central_Luzon <- RP1[RP1@data$NAME_1 == "Pampanga" | 
                      RP1@data$NAME_1 == "Tarlac" |
                      RP1@data$NAME_1 == "Pangasinan" |
                      RP1@data$NAME_1 == "La Union" |
                      RP1@data$NAME_1 == "Nueva Ecija" |
                      RP1@data$NAME_1 == "Bulacan", ]
-```
 
-## Simplify the data
+#`gSimplify()` from _rgeos_ simplifies the data to make the map generation in the next few steps quicker.
 
-`gSimplify()` from _rgeos_ simplifies the data to make the map generation in the next few steps quicker.
-
-```{r, echo=TRUE}
 library(rgeos)
 RP0 <- gSimplify(RP0, tol = 0.05)
-```
 
-## Create an Inset Map
 
-```{r, echo=TRUE}
+# Create an Inset Map
+
 library(ggplot2)
 library(grid)
 library(gridExtra)
@@ -164,10 +151,8 @@ CL_names <- data.frame(coordinates(Central_Luzon))
 
 # add them to the data slot
 CL_names$label <- Central_Luzon@data$NAME_1
-```
 
-## Main Map
-```{r main_map, echo=TRUE}
+# Main Map
 p1 <- ggplot() + 
   geom_polygon(data = Central_Luzon, aes(x = long, y = lat, group = group),
                colour = "grey10", fill = "#fff7bc") +
@@ -179,10 +164,8 @@ p1 <- ggplot() +
   theme_bw() + 
   xlab("Longitude") + 
   ylab("Latitude")
-```
 
-## Inset
-```{r inset, echo=TRUE}
+# Inset
 p2 <- ggplot() + 
   geom_polygon(data = RP0, aes(long, lat, group = group),
                colour = "grey10", fill = "#fff7bc") +
@@ -196,14 +179,15 @@ p2 <- ggplot() +
         axis.ticks = element_blank(), axis.title.x = element_blank(),
         axis.title.y = element_blank(),
         plot.margin = unit(c(0, 0, 0 ,0), "mm"))
-```
 
-## Put the Maps Together
-```{r plot_final_maps, echo=TRUE}
+# Put the Maps Together
 grid.newpage()
 v1 <- viewport(width = 1, height = 1, x = 0.5, y = 0.5) # main map
 v2 <- viewport(width = 0.28, height = 0.28, x = 0.64, y = 0.76) # inset map
-print(p1, vp = v1); print(p2, vp = v2)
+
+# final map
+print(p1, vp = v1);
+print(p2, vp = v2)
 ```
 
 ## Dissolve Polygons and Find Centroid of Loop Survey Area
@@ -266,7 +250,7 @@ print(loop_stations[, c(1:2, 3, 7:12)])
 
 This example shows how you could construct a query using the `get_GSOD()` function. Be aware that it may result in incomplete data and error from the server if it stops responding. We've done our best to make _GSODR_ handle these errors, but if it does this, see the following option for using the `reformat_GSOD()` function.
 
-```{r get_data, echo=TRUE, eval=TRUE}
+```{r get_data, echo=TRUE, eval=FALSE}
 PHL <- get_GSOD(station = 
                   eval(parse(text = loop_stations[, 12])), years = 1960:2015)
 save(PHL, file = "IRRI_loop.RData")
@@ -280,7 +264,7 @@ Using your FTP client (*e.g.*, FileZilla) log into the NCEI FTP server, [<ftp.nc
 
 ## Using `reformat_GSOD()`
 
-```{r reformat_GSOD, echo=TRUE, eval=FALSE}
+```{r using_reformat_GSOD, echo=TRUE, eval=FALSE}
 years <- 1960:2015
 
 loop_stations <- eval(parse(text = loop_stations[, 12]))
@@ -299,9 +283,11 @@ readr::write_csv(loop_data, file = "~/Loop_Survey_Weather_1960-2015")
 ```
 
 ## Examining the Data
-```{r PHL_data}
-PHL <- load(file = "IRRI_loop.Rdata")
+```{r load_PHL_data}
+load(file = "IRRI_loop.Rdata")
+```
 
+```{r plot_PHL_data, echo=FALSE, message=FALSE}
 library(dplyr)
 PHL <-
   PHL %>%
@@ -310,7 +296,6 @@ PHL <-
 
 ggplot(data = PHL, aes(x = YEAR, y = ANNUAL_TEMP, group = 1)) +
   geom_line(aes(colour = STN_NAME)) +
-  geom_point(aes(colour = STN_NAME)) +
   scale_colour_discrete(name  = "Station Name") +
   ylab("Mean Annual Temperature (˚C)") +
   facet_grid(STN_NAME ~ .)
