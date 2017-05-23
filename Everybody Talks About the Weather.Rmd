@@ -8,7 +8,7 @@ output:
     incremental: true
 ---
 
-<style>    
+<style>
 pre {
   font-family: 'FiraCode-Retina', 'Courier New', monospace;
   font-size: 18px;
@@ -31,13 +31,19 @@ knitr::opts_chunk$set(echo = FALSE)
 options(tibble.print_max = 4, tibble.print_min = 4)
 ```
 
+##
+
+Everybody talks about the weather, but nobody does anything about it  
+
+-Charles Dudley Warner 
+
 ## About Me
 
 **Currently:** A/Prof Field Crops Pathology @ USQ CCH, Toowoomba, AUS
 
 **Previously:** Plant Disease Management Specialist @ IRRI, Los Baños, PHL
 
-### Weather Related R packages
+### Weather & Climate Related R packages
 
 - GSODR (Sparks, Hengl and Nelson)  
 
@@ -45,20 +51,42 @@ options(tibble.print_max = 4, tibble.print_min = 4)
 
 - bomrang (Sparks, Parsonage and Pembleton; not yet on CRAN)
 
+- GSODRData (Sparks, Hengl and Nelson)
+
+## The GSODR Package
+ ![](rOpenSci.png)
+
+Adam H Sparks, Tomislav Hengl and Andrew Nelson (2017). GSODR: Global Summary Daily Weather Data in R. The Journal of Open Source Software, 2(10). DOI: 10.21105/joss.00177. URL: https://doi.org/10.21105%2Fjoss.00177
+
+## Functions in GSODR
+
+-   `get_GSOD()` - queries and transfers files from the FTP server, reformats them and returns a `data.frame()` object in R session or saves a file to disk with options for a GeoPackage spatially enabled file or comma separated values (CSV) file,  
+-   `reformat_GSOD()` - the workhorse, takes individual station files on the local disk and reformats them, returns a `data.table()` object in R session or saves a file to disk with options for a GeoPackage spatially enabled file or comma separated values (CSV) file,  
+-   `nearest_stations()` - returns a `vector()` object containing a list of stations that fall within the given radius of a point specified by the user,  
+-   `get_station_list()` - downloads the latest station list from the NCEI FTP server and returns a `data.table()` object in R session.
+
 ## GSOD Data
 
 The GSOD or [Global Surface Summary of the Day (GSOD)](https://data.noaa.gov/dataset/global-surface-summary-of-the-day-gsod) station locations. US National Centers for Environmental Information, 1901-Present.
 
 ```{r station_locations, echo=FALSE, message=FALSE}
-#devtools::install_github("adamhsparks/GSODR", ref = "devel")
 library(ggplot2)
 library(GSODR)
 
-utils::data("isd_history", package = "GSODR")
+isd_history <- get_station_list()
 GSOD_stations <- as.data.frame(isd_history)
 
 ggplot(GSOD_stations, aes(x = LON, y = LAT)) +
   geom_point(alpha = 0.1) +
+  coord_map() +
+  theme_bw()
+```
+
+## GSOD Station Locations in the Philippines
+```{r PHL_stations, echo=FALSE, eval=TRUE}
+isd_PHL <- subset(isd_history, CTRY == "RP")
+ggplot(isd_PHL, aes(x = LON, y = LAT)) +
+  geom_point() +
   coord_map() +
   theme_bw()
 ```
@@ -76,7 +104,7 @@ download.file(
   (readr::read_table(Baguio))
 ```
 
-## The Same Data File
+## The GSODR Parsed Data File
 Retrieved and parsed with GSODR
 
 ```{r reformat_GSOD, echo=FALSE, message=FALSE, quiet=TRUE, results="hide"}
@@ -90,19 +118,20 @@ head(Baguio, 2)
 rm(Baguio)
 ```
 
-## The GSODR Package
- ![](rOpenSci.png)
+## Extra Data Included in GSODR Output
 
-Adam H Sparks, Tomislav Hengl and Andrew Nelson (2017). GSODR: Global Summary Daily Weather Data in R. The Journal of Open Source Software, 2(10). DOI: 10.21105/joss.00177. URL: https://doi.org/10.21105%2Fjoss.00177
+These data are not in the original GSOD data
 
-## Functions in GSODR
+- **ELEV_M_SRTM_90m** - Elevation in metres corrected for possible errors, derived from the CGIAR-CSI SRTM 90m database (Jarvis et al. 2008)
 
--   `get_GSOD()` - queries and transfers files from the FTP server, reformats them and returns a `tibble()` object in R session or saves a file to disk with options for a GeoPackage spatially enabled file or comma separated values (CSV) file,  
--   `reformat_GSOD()` - the workhorse, takes individual station files on the local disk and reformats them, returns a `tibble()` object in R session or saves a file to disk with options for a GeoPackage spatially enabled file or comma separated values (CSV) file,  
--   `nearest_stations()` - returns a `vector()` object containing a list of stations and their metadata that fall within the given radius of a point specified by the user,  
--   `get_station_list()` - downloads the latest station list from the NCEI FTP server and returns a `data.table()` object in R session.
+- **ea** - Mean daily actual vapour pressure
 
-## A Friend Came to me With a Problem
+- **es** - Mean daily saturation vapour pressure  
+
+- **RH** - Mean daily relative humidity
+
+## A Friend Came to Me With a Problem
+
 "I need weather data"
 
 IRRI survey loop in Central Luzon since the 1960s.  http://ricestat.irri.org/fhsd/php/panel.php?page=1&sortBy=title&sortOrder=ascending#
@@ -212,10 +241,10 @@ centroid <- gCentroid(Central_Luzon)
 
 ggplot() +
   geom_polygon(
-  data = Central_Luzon,
-  aes(x = long, y = lat, group = group),
-  colour = "grey10",
-  fill = "#fff7bc"
+    data = Central_Luzon,
+    aes(x = long, y = lat, group = group),
+    colour = "grey10",
+    fill = "#fff7bc"
   ) +
   geom_point(aes(x = centroid@coords[1], y = centroid@coords[2])) +
   theme(axis.text.y = element_text(angle = 90, hjust = 0.5)) +
@@ -225,15 +254,24 @@ ggplot() +
 
 ## Create List of Loop Stations
 ```{r get_station_data, echo=TRUE}
-loop_stations <- nearest_stations(LAT = centroid@coords[2],
-                                  LON = centroid@coords[1],
-                                  distance = 100)
+RP0 <- raster::getData(country = "Philippines", level = 0)
+RP1 <- raster::getData(country = "Philippines", level = 1)
+
+Central_Luzon <- RP1[RP1@data$NAME_1 == "Pampanga" |
+                       RP1@data$NAME_1 == "Tarlac" |
+                       RP1@data$NAME_1 == "Pangasinan" |
+                       RP1@data$NAME_1 == "La Union" |
+                       RP1@data$NAME_1 == "Nueva Ecija" |
+                       RP1@data$NAME_1 == "Bulacan", ]
+
+RP0 <- rgeos::gSimplify(RP0, tol = 0.05)
+
+loop_stations <- GSODR::nearest_stations(LAT = centroid@coords[2], LON = centroid@coords[1],
+                                         distance = 100)
                                   
-                                  loop_stations <-
-                                  GSOD_stations[GSOD_stations$STNID %in% loop_stations,]
+loop_stations <- GSOD_stations[GSOD_stations$STNID %in% loop_stations, ]
                                   
-                                  loop_stations <- loop_stations[loop_stations$BEGIN <= 19591231 &
-                                  loop_stations$END >= 20151231,]
+loop_stations <- loop_stations[loop_stations$BEGIN <= 19591231 & loop_stations$END >= 20151231, ]
 ```
 
 ## Loop Stations
@@ -258,12 +296,13 @@ years <- 1960:2015
 loop_stations <- eval(parse(text = loop_stations[, 12]))
 
 # create file list
-loop_stations <- do.call(paste0, c(expand.grid(loop_stations, "-", years, ".op.gz")))
+loop_stations <-
+  do.call(paste0, c(expand.grid(loop_stations, "-", years, ".op.gz")))
 
 local_files <-
 list.files(path = "./GSOD",
-full.names = TRUE,
-recursive = TRUE)
+           full.names = TRUE,
+           recursive = TRUE)
 local_files <- local_files[basename(local_files) %in% loop_stations]
 
 loop_data <- reformat_GSOD(file_list = local_files)
@@ -272,9 +311,9 @@ readr::write_csv(loop_data, file = "~/Loop_Survey_Weather_1960-2015")
 ```
 
 ## Examining the Data
-Install `visdat`, `devtools::install_github("njtierney/visdat")`
+Install [`visdat`](http://www.njtierney.com/visdat/), `devtools::install_github("njtierney/visdat")`
 ```{r, echo=FALSE, eval=TRUE}
-load(file = "IRRI_loop.Rdata") # saves time loading vs downloading in previous step
+load(file = "MNL_RUG.Rdata") # saves time loading vs downloading in previous step
 library(visdat)
 ```
 
@@ -309,10 +348,10 @@ ggplot(data = PHL_tmp, aes(x = YEAR, y = ANNUAL_TEMP, group = 1)) +
 ```{r map_density, eval=TRUE, echo=FALSE}
 ggplot() +
   geom_polygon(
-  data = Central_Luzon,
-  aes(x = long, y = lat, group = group),
-  colour = "grey10",
-  fill = "#fff7bc"
+    data = Central_Luzon,
+    aes(x = long, y = lat, group = group),
+    colour = "grey10",
+    fill = "#fff7bc"
   ) +
   geom_point(data = PHL, aes(x = LON, y = LAT)) +
   geom_point(aes(x = centroid@coords[1], y = centroid@coords[2]),
@@ -360,3 +399,5 @@ ggplot() +
 - **ORCID:** [http://orcid.org/0000-0002-0061-8359](0000-0002-0061-8359)
 
 - **This Presentation:** https://github.com/adamhsparks/ManilaRUG2017
+
+- **GSODR** Documentation https://ropensci.github.io/GSODR/
