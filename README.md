@@ -4,7 +4,7 @@ A presentation for the Manila R Users Group
 
 by Adam H Sparks
 
-On 24/05/2017
+on 24/05/2017
 
 ### The Presentation
 
