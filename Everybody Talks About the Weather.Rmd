@@ -254,7 +254,6 @@ ggplot() +
 
 ## Create List of Loop Stations
 ```{r get_station_data, echo=TRUE}
-RP0 <- raster::getData(country = "Philippines", level = 0)
 RP1 <- raster::getData(country = "Philippines", level = 1)
 
 Central_Luzon <- RP1[RP1@data$NAME_1 == "Pampanga" |
@@ -264,7 +263,8 @@ Central_Luzon <- RP1[RP1@data$NAME_1 == "Pampanga" |
                        RP1@data$NAME_1 == "Nueva Ecija" |
                        RP1@data$NAME_1 == "Bulacan", ]
 
-RP0 <- rgeos::gSimplify(RP0, tol = 0.05)
+Central_Luzon <- gUnaryUnion(Central_Luzon)
+centroid <- gCentroid(Central_Luzon)
 
 loop_stations <- GSODR::nearest_stations(LAT = centroid@coords[2], LON = centroid@coords[1],
                                          distance = 100)
